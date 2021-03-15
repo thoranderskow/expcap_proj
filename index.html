@@ -1,11 +1,23 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <style>
+      #board {
+        position:absolute;
+        width:100%;
+        height:100%;
+      }
+    </style>
+  </head>
     <body>
-      whatup
+      d
+      <canvas id='board'><canvas/>
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var socket = io();
+      socket.on('joined', function(msg) {
+        console.log(msg);
+      });
     </script>
   </body>
 </html>

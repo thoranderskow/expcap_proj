@@ -8,6 +8,7 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
 	console.log('a user connected');
+	io.emit('joined', 'placeholder');
 });
 
 http.listen(process.env.PORT || 3000, () => {
