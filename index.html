@@ -13,9 +13,10 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.3.0/lib/p5.js"></script>
     <script>
-      var socket = io();
-      var pb;
-      var c;
+      let socket = io();
+      let pb;
+      let c;
+      let flag = false;
 
       function playerBrush(x,y,color,size) {
         this.x = x;
@@ -78,6 +79,7 @@
         socket.emit('newplayer', true);
         socket.on('size', (data) => {
           pb = new playerBrush(0,0,data[1],data[0]);
+          socket.emit('ready', true);
         })
         socket.on('updateall', updatedraw);
       }
@@ -89,15 +91,20 @@
       }
 
       function draw() {
-        let data = {
-          x: pb.x,
-          y: pb.y,
-          size: pb.size,
-          color: pb.color
-        };
-        socket.emit('drawn', data);
-        pb.update();
-        pb.show();
+        socket.on('begin', (msg) => {
+          flag = true;
+        })
+        if (flag) {
+          let data = {
+            x: pb.x,
+            y: pb.y,
+            size: pb.size,
+            color: pb.color
+          };
+          socket.emit('drawn', data);
+          pb.update();
+          pb.show();
+        }
       }
 
 

@@ -23,6 +23,9 @@ io.on('connection', (socket) => {
 	socket.on('drawn', (msg) => {
 		socket.broadcast.emit('updateall', msg);
 	});
+	socket.on('ready', (msg) => {
+		socket.emit('begin', true);
+	})
 });
 
 
