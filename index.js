@@ -8,9 +8,12 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
 	console.log('a user connected');
-	io.emit('joined', 'placeholder');
+	socket.on('drawn', (msg) => {
+		socket.broadcast.emit('updateall', msg);
+	});
 });
 
-http.listen(process.env.PORT || 3000, () => {
-	console.log('listening on *:3000');
+
+http.listen(process.env.PORT || 8000, () => {
+	console.log('listening on *:8000');
     });
