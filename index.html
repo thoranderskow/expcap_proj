@@ -9,27 +9,31 @@
     </style>
   </head>
     <body>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.3.0/lib/p5.js"></script>
     <script>
       var socket = io();
       var pb;
+      var c;
 
-      function playerBrush(x,y,color) {
+      function playerBrush(x,y,color,size) {
         this.x = x;
         this.y = y;
         this.xspeed = 0;
         this.yspeed = 0;
+        this.color = color;
+        this.size = size;
         this.update = function () {
           this.x = this.x + this.xspeed;
           this.y = this.y + this.yspeed;
-          this.x = constrain(this.x, 0, windowWidth-10);
-          this.y = constrain(this.y, 0, windowHeight-10);
+          this.x = constrain(this.x, 0, windowWidth-this.size);
+          this.y = constrain(this.y, 0, windowHeight-this.size);
         }
         this.show = function () {
           noStroke();
-          fill(color);
-          rect(this.x, this.y, 10, 10);
+          fill(this.color);
+          rect(this.x, this.y, this.size, this.size);
         }
         this.dir = function(x,y) {
           this.xspeed = x;
@@ -42,28 +46,44 @@
       }
 
       function keyPressed () {
-        if (keyCode == UP_ARROW) {
-          pb.dir(0,-3);
-        } else if (keyCode == DOWN_ARROW) {
-          pb.dir(0,3);
+        if (keyCode == ENTER) {
+          saveCanvas(c, 'myCanvas.jpg');
+        }
+        if (keyIsDown(UP_ARROW)) {
+          if (keyIsDown(RIGHT_ARROW)) {
+            pb.dir(3,-3);
+          } else if (keyIsDown(LEFT_ARROW)){
+            pb.dir(-3,-3);
+          } else {
+            pb.dir(0,-3);
+          }
+        } else if (keyIsDown(DOWN_ARROW)) {
+          if (keyIsDown(RIGHT_ARROW)) {
+            pb.dir(3,3);
+          } else if (keyIsDown(LEFT_ARROW)){
+            pb.dir(-3,3);
+          } else {
+            pb.dir(0,3);
+          }
         } else if (keyCode == RIGHT_ARROW) {
           pb.dir(3,0);
         } else if (keyCode == LEFT_ARROW) {
           pb.dir(-3,0);
-        } else if (keyCode == SHIFT) {
-          pb.dir(0,0);
         }
       }
 
       function setup() {
-        createCanvas(windowWidth, windowHeight);
+        let c = createCanvas(windowWidth, windowHeight);
         background(51);
-        pb = new playerBrush(0,0,255);
+        socket.emit('newplayer', true);
+        socket.on('size', (data) => {
+          pb = new playerBrush(0,0,data[1],data[0]);
+        })
         socket.on('updateall', updatedraw);
       }
 
       function updatedraw(data) {
-        var newpb = new playerBrush(data.x,data.y, 100);
+        var newpb = new playerBrush(data.x,data.y, data.color, data.size);
         newpb.update();
         newpb.show();
       }
@@ -71,7 +91,9 @@
       function draw() {
         let data = {
           x: pb.x,
-          y: pb.y
+          y: pb.y,
+          size: pb.size,
+          color: pb.color
         };
         socket.emit('drawn', data);
         pb.update();
