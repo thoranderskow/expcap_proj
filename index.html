@@ -25,6 +25,7 @@
         this.yspeed = 0;
         this.color = color;
         this.size = size;
+        this.small = false;
         this.update = function () {
           this.x = this.x + this.xspeed;
           this.y = this.y + this.yspeed;
@@ -39,10 +40,6 @@
         this.dir = function(x,y) {
           this.xspeed = x;
           this.yspeed = y;
-        }
-        this.stop = function() {
-          this.xspeed = 0;
-          this.yspeed = 0;
         }
       }
 
@@ -91,6 +88,8 @@
       }
 
       function draw() {
+        //sockets stuff with emitting ready and begin crude attempt at circumventing
+        // what I believe is a race relation
         socket.on('begin', (msg) => {
           flag = true;
         })
